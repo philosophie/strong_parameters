@@ -26,6 +26,15 @@ module ActionController
       self
     end
 
+    def recursive_permit!
+      each_pair do |key, value|
+        convert_hashes_to_parameters(key, value)
+        self[key].recursive_permit! if self[key].respond_to? :recursive_permit!
+      end
+
+      permit!
+    end
+
     def require(key)
       self[key].presence || raise(ActionController::ParameterMissing.new(key))
     end
